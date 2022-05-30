@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer, TokenVerifySerializer
 from rest_framework_simplejwt.state import token_backend
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 
 from django.contrib.auth.models import User, update_last_login
+from django.utils.text import gettext_lazy as _
 from datetime import datetime
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -35,6 +36,23 @@ class MyTokenRefreshSerializer(TokenRefreshSerializer):
             )
 
             return data
+
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    default_error_messages = {
+        'bad_token': _('Token is invalid or expired')
+    }
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            self.fail('bad_token')
 
 class UserSerializer(serializers.ModelSerializer) :
     class Meta :
