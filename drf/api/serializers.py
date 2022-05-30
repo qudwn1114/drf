@@ -21,21 +21,21 @@ class MyTokenRefreshSerializer(TokenRefreshSerializer):
     token_class = RefreshToken
 
     def validate(self, attrs):
-            verify_refresh(self.token_class(attrs["refresh"]))
-            data = super(MyTokenRefreshSerializer, self).validate(attrs)
-            decoded_payload = token_backend.decode(data['refresh'], verify=True)
-            user_uid=decoded_payload['user_id']
-            jti=decoded_payload['jti']
-            exp=decoded_payload['exp']
-            OutstandingToken.objects.create(
-                user=User.objects.get(pk=user_uid),
-                jti=jti,
-                expires_at = datetime.fromtimestamp(exp),
-                token = str(data['refresh']),
-                created_at=datetime.utcnow(),
-            )
+        verify_refresh(self.token_class(attrs["refresh"]))
+        data = super(MyTokenRefreshSerializer, self).validate(attrs)
+        decoded_payload = token_backend.decode(data['refresh'], verify=True)
+        user_uid=decoded_payload['user_id']
+        jti=decoded_payload['jti']
+        exp=decoded_payload['exp']
+        OutstandingToken.objects.create(
+            user=User.objects.get(pk=user_uid),
+            jti=jti,
+            expires_at = datetime.fromtimestamp(exp),
+            token = str(data['refresh']),
+            created_at=datetime.utcnow(),
+        )
 
-            return data
+        return data
 
 class RefreshTokenSerializer(serializers.Serializer):
     refresh = serializers.CharField()
