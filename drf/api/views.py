@@ -37,6 +37,8 @@ class UserListAPI(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, *args, **kwargs):
         print(get_user(request))
+        print(request.user)
+        print(request.headers.get('Authorization', '').split()[1])
         queryset = User.objects.all()
         serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -54,19 +56,19 @@ class LoginAPI(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-            try:
-                id = request.data['username']
-                password = request.data['password']
-                user = authenticate(username=id, password=password)
-                if user is not None:
-                    login(request, user)
-                else:
-                    return JsonResponse({
-                            "error": "로그인정보오류"
-                        }, status=status.HTTP_400_BAD_REQUEST
-                    )
+        try:
+            id = request.data['username']
+            password = request.data['password']
+            user = authenticate(username=id, password=password)
+            if user is not None:
+                login(request, user)
+            else:
                 return JsonResponse({
-                    "url" : "abc"
-                }, status=status.HTTP_201_CREATED)
-            except:
-                return JsonResponse(status=status.HTTP_400_BAD_REQUEST)
+                        "error": "로그인정보오류"
+                    }, status=status.HTTP_400_BAD_REQUEST
+                )
+            return JsonResponse({
+                "url" : "abc"
+            }, status=status.HTTP_201_CREATED)
+        except:
+            return JsonResponse(status=status.HTTP_400_BAD_REQUEST)

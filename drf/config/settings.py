@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'django.contrib.sites',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -152,4 +154,17 @@ SIMPLE_JWT = {
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
+}
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
 }
