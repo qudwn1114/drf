@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div class="container d-flex justify-content-center">
+            <div class="jumbotron text-center col-md-7">
+                <p><i>{{ message }}</i></p>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <input class="form-control" type="text" name="job_name"/>
+                    <button type="submit" class="btn-primary">Run</button>
+                </form>
+            </div>
+            <div class='progress-wrapper'>
+                <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+            </div>
+            <div id="progress-bar-message">Waiting for progress to start...</div>
+        </div>
+    </body>
+    <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+    {% if task_id %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+
+            function onSuccessDefault(progressBarElement, progressBarMessageElement, result) {
+                result = this.getMessageDetails(result);
+                if (progressBarElement) {
+                    progressBarElement.style.backgroundColor = this.barColors.success;
+                }
+                if (progressBarMessageElement) {
+                    progressBarMessageElement.textContent = "Success!!!! " + result;
+                }
+            }
+            CeleryProgressBar.initProgressBar(progressUrl, {
+                pollInterval: 1000,
+                barColors: {
+                    success: '#76ce60',
+                    error: '#dc4f63',
+                    progress: '#68a9ef',
+                    ignored: '#7a7a7a'
+                },
+                defaultMessages: {
+                    waiting: '학습 시작 전!',
+                    started: '시작 중..',
+                },
+                onSuccess: onSuccessDefault,
+            });
+        });
+    </script>
+    {% endif %}
+</html>

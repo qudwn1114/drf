@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_celery_beat',
     'django_celery_results',
+    'celery_progress',
 ]
 
 MIDDLEWARE = [
@@ -168,3 +169,5 @@ CACHES = {
         'LOCATION': 'my_cache_table',
     }
 }
+
+SITE_ID = 1
